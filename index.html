@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Study Quest</title>
+<meta name="theme-color" content="#1b120b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Study Quest">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Crimson+Text:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --wood:#1b120b; --wood2:#2a1c11;
+    --parch:#f2e4c4; --parch2:#e6d2a6; --ink:#3a2814; --ink2:#6b5233;
+    --gold:#d4a937; --gold2:#a87b1e; --goldlite:#f6dc7a;
+    --maths:#9e2b25; --maths-lite:#d9605a; --acc:#2d6a3e; --acc-lite:#5fb377;
+    --arcane:#5a3f8f;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;min-height:100%}
+  html{background:#1b120b}
+  body{
+    font-family:"Crimson Text",Georgia,serif;color:var(--ink);font-size:17px;
+    background:
+      radial-gradient(ellipse at top, #3a2716 0%, transparent 60%),
+      repeating-linear-gradient(90deg, rgba(0,0,0,.18) 0 2px, transparent 2px 38px),
+      linear-gradient(var(--wood2),var(--wood));
+    background-attachment:fixed;
+    padding:calc(env(safe-area-inset-top) + 14px) 12px calc(env(safe-area-inset-bottom) + 28px);
+  }
+  .wrap{max-width:480px;margin:0 auto}
+  h1,h2,h3,.cinzel{font-family:Cinzel,serif;letter-spacing:.04em}
+  .title{text-align:center;color:var(--goldlite);margin:4px 0 2px;font-size:26px;font-weight:800;text-shadow:0 2px 0 #000,0 0 18px rgba(212,169,55,.45)}
+  .week{text-align:center;color:#c9b38a;font-size:15px;margin-bottom:14px;font-style:italic}
+
+  /* parchment card */
+  .scroll{
+    position:relative;background:
+      radial-gradient(ellipse at 20% 10%, rgba(255,255,255,.35), transparent 50%),
+      radial-gradient(ellipse at 80% 90%, rgba(120,80,30,.18), transparent 55%),
+      linear-gradient(var(--parch),var(--parch2));
+    border-radius:6px;padding:18px 16px 16px;margin-bottom:16px;
+    border:2px solid var(--gold2);
+    box-shadow:0 0 0 4px var(--wood),0 0 0 6px var(--gold2),0 10px 24px rgba(0,0,0,.55), inset 0 0 40px rgba(120,80,30,.25);
+  }
+  .scroll::before,.scroll::after{content:"⚜";position:absolute;top:4px;color:var(--gold2);font-size:16px}
+  .scroll::before{left:8px} .scroll::after{right:8px}
+  .scroll h2{margin:0 0 4px;text-align:center;font-size:19px;color:var(--ink)}
+  .flourish{text-align:center;color:var(--gold2);font-size:13px;letter-spacing:6px;margin:-2px 0 10px}
+
+  /* hero card */
+  .hero{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+  .crest{width:64px;height:72px;flex:none;display:flex;align-items:center;justify-content:center;font-size:34px;
+    background:linear-gradient(var(--arcane),#2d1f4d);color:#fff;border:3px solid var(--gold);
+    clip-path:polygon(50% 100%,0 72%,0 0,100% 0,100% 72%);padding-bottom:10px}
+  .hero-name{font-family:Cinzel,serif;font-weight:800;font-size:20px;line-height:1.1}
+  .hero-title{color:var(--ink2);font-style:italic}
+  .xpbar{height:12px;border-radius:6px;background:#cdb88a;border:1px solid var(--gold2);overflow:hidden;margin-top:6px}
+  .xpbar i{display:block;height:100%;background:linear-gradient(90deg,var(--arcane),#8b6ad1);transition:width .8s}
+  .xptext{font-size:13px;color:var(--ink2);margin-top:2px}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+  .stat{background:rgba(58,40,20,.08);border:1px solid rgba(168,123,30,.5);border-radius:6px;padding:6px 2px;text-align:center}
+  .stat .k{font-family:Cinzel,serif;font-size:11px;color:var(--ink2)}
+  .stat .v{font-size:22px;font-weight:700;line-height:1.1}
+  .stat .e{font-size:15px}
+  .stat.bump{animation:bump 1s}
+  @keyframes bump{0%,100%{background:rgba(58,40,20,.08)}30%{background:var(--goldlite);transform:scale(1.12)}}
+
+  /* quest scrolls */
+  .qhead{display:flex;justify-content:space-between;align-items:baseline}
+  .qcount{font-style:italic;color:var(--ink2);text-align:center;margin-bottom:10px}
+  .gems{display:grid;grid-template-columns:repeat(8,1fr);gap:9px 6px;padding:4px 6px 12px}
+  .gem{aspect-ratio:1;transform:rotate(45deg) scale(.78);border:2px solid var(--gold2);background:rgba(58,40,20,.08);border-radius:3px;transition:all .3s}
+  .maths .gem.done{background:linear-gradient(135deg,var(--maths-lite),var(--maths));border-color:var(--gold);box-shadow:0 0 8px rgba(212,169,55,.7)}
+  .acc .gem.done{background:linear-gradient(135deg,var(--acc-lite),var(--acc));border-color:var(--gold);box-shadow:0 0 8px rgba(212,169,55,.7)}
+  .gem.bonus{border-style:dashed}
+  .gem.pop{animation:gempop .8s}
+  @keyframes gempop{0%{transform:rotate(45deg) scale(.2)}60%{transform:rotate(45deg) scale(1.15)}100%{transform:rotate(45deg) scale(.78)}}
+  button{font-family:Cinzel,serif;border:0;cursor:pointer}
+  .begin{
+    width:100%;padding:14px;font-size:17px;font-weight:800;letter-spacing:.06em;color:#fff6dc;border-radius:6px;
+    border:2px solid var(--gold);box-shadow:0 3px 0 #000,inset 0 1px 0 rgba(255,255,255,.3);text-shadow:0 1px 0 #000;
+  }
+  .maths .begin{background:linear-gradient(var(--maths-lite),var(--maths))}
+  .acc .begin{background:linear-gradient(var(--acc-lite),var(--acc))}
+  .begin:active{transform:translateY(2px);box-shadow:0 1px 0 #000}
+  .begin small{display:block;font-family:"Crimson Text",serif;font-weight:400;font-size:14px;letter-spacing:0;opacity:.9}
+  .begin.ghost{opacity:.75;margin-top:8px;padding:10px}
+  .conquered{text-align:center;font-family:Cinzel,serif;font-weight:800;color:var(--gold2);padding:6px 0 2px;font-size:17px}
+
+  /* achievements */
+  .ach{display:grid;grid-template-columns:repeat(4,1fr);gap:10px 6px}
+  .a{text-align:center;font-size:13px;color:var(--ink2);line-height:1.15}
+  .a .seal{width:52px;height:52px;margin:0 auto 4px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;
+    background:#cdb88a;border:2px dashed var(--ink2);filter:grayscale(1);opacity:.45}
+  .a.got{color:var(--ink);font-weight:600}
+  .a.got .seal{filter:none;opacity:1;background:radial-gradient(circle at 35% 30%,#f6dc7a,var(--gold) 55%,var(--gold2));border:2px solid #7a5512;box-shadow:0 2px 6px rgba(0,0,0,.35)}
+  .hist-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px dashed rgba(107,82,51,.5);font-size:15px}
+  .hist-row:last-child{border:0}
+  .sync{font-size:13px;color:#a8946b;text-align:center;font-style:italic}
+
+  /* timer */
+  #timer{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;z-index:10;
+    background:radial-gradient(circle at 50% 40%,#3a2716,#140d07 70%)}
+  #timer.show{display:flex}
+  #timer .label{font-family:Cinzel,serif;font-weight:800;font-size:22px;color:var(--goldlite);text-shadow:0 0 14px rgba(212,169,55,.5)}
+  #timer .sub{color:#c9b38a;font-style:italic;margin-top:2px}
+  .ring{position:relative;width:260px;height:260px;margin:14px 0 22px}
+  .ring svg{transform:rotate(-90deg)}
+  .ring .t{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--parch)}
+  .ring .t b{font-family:Cinzel,serif;font-size:54px;font-variant-numeric:tabular-nums}
+  .ring .t span{color:#c9b38a;font-style:italic}
+  .tbtn{min-width:220px;padding:13px 18px;border-radius:6px;font-size:16px;font-weight:800;color:var(--ink);
+    background:linear-gradient(var(--parch),var(--parch2));border:2px solid var(--gold2);box-shadow:0 3px 0 #000}
+  #quote{margin-top:22px;text-align:center;color:#c9b38a;max-width:320px;font-style:italic;font-size:17px}
+
+  /* toast + modal */
+  #toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 24px);transform:translateX(-50%) translateY(140px);z-index:30;
+    background:linear-gradient(var(--parch),var(--parch2));color:var(--ink);border:2px solid var(--gold2);box-shadow:0 0 0 3px var(--wood),0 8px 20px rgba(0,0,0,.6);
+    padding:10px 18px;border-radius:6px;font-family:Cinzel,serif;font-weight:800;transition:transform .35s;max-width:92vw;text-align:center}
+  #toast.show{transform:translateX(-50%) translateY(0)}
+  #modal{position:fixed;inset:0;background:rgba(10,6,3,.75);display:none;align-items:center;justify-content:center;z-index:40;padding:24px}
+  #modal.show{display:flex}
+  #modal .box{max-width:340px;width:100%;text-align:center;animation:unroll .45s ease-out}
+  @keyframes unroll{from{transform:scaleY(.1);opacity:0}to{transform:scaleY(1);opacity:1}}
+  #modal .big{font-size:58px;line-height:1}
+  #modal h3{margin:8px 0 6px;font-size:22px}
+  #modal p{color:var(--ink2);margin:0 0 16px;font-size:17px}
+  #modal .row{display:flex;gap:8px;flex-wrap:wrap}
+  #modal .row button{flex:1;padding:12px 8px;border-radius:6px;font-size:15px;font-weight:800;background:rgba(58,40,20,.1);color:var(--ink);border:2px solid var(--gold2)}
+  #modal .row button.primary{background:linear-gradient(#7d5fc0,var(--arcane));color:#fff;border-color:var(--gold)}
+  canvas#confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+<div class="wrap">
+  <div class="title">⚔ Study Quest ⚔</div>
+  <div class="week" id="weekLabel"></div>
+
+  <div class="scroll" id="heroCard"></div>
+  <div class="scroll maths" id="cardMaths"></div>
+  <div class="scroll acc" id="cardAcc"></div>
+
+  <div class="scroll">
+    <h2>Hall of Honours</h2>
+    <div class="flourish" id="achCount"></div>
+    <div class="ach" id="ach"></div>
+  </div>
+
+  <div class="scroll" id="histCard" style="display:none">
+    <h2>Chronicle of Past Weeks</h2>
+    <div class="flourish">◆ ◆ ◆</div>
+    <div id="hist"></div>
+  </div>
+  <div class="sync" id="sync">Progress is saved on this phone</div>
+</div>
+
+<div id="timer">
+  <div class="label" id="tLabel">Trial of Maths</div>
+  <div class="sub" id="tSub">Focus, adventurer</div>
+  <div class="ring">
+    <svg width="260" height="260" viewBox="0 0 260 260">
+      <circle cx="130" cy="130" r="115" stroke="#3a2a18" stroke-width="18" fill="none"/>
+      <circle cx="130" cy="130" r="126" stroke="#a87b1e" stroke-width="2" fill="none"/>
+      <circle cx="130" cy="130" r="104" stroke="#a87b1e" stroke-width="2" fill="none"/>
+      <circle id="tArc" cx="130" cy="130" r="115" stroke="#d4a937" stroke-width="16" fill="none" stroke-linecap="round" stroke-dasharray="722.6" stroke-dashoffset="0"/>
+    </svg>
+    <div class="t"><b id="tTime">20:00</b><span id="tState">Trial underway</span></div>
+  </div>
+  <button class="tbtn" id="stopBtn">Retreat for now</button>
+  <button class="tbtn" id="skipBtn" style="display:none">Break camp early</button>
+  <div id="quote"></div>
+</div>
+
+<div id="modal"><div class="box scroll">
+  <div class="big" id="mIcon">🎉</div>
+  <h3 id="mTitle"></h3>
+  <p id="mText"></p>
+  <div class="row" id="mBtns"></div>
+</div></div>
+<div id="toast"></div>
+
+<script>
+(function(){
+const SLOT_MS = 20*60*1000;
+const BREAK_MS = 10*60*1000;
+const STOP_PENALTY_MS = 2*60*1000;
+const SUBJ = {
+  maths:{name:"Maths", scroll:"The Scroll of Maths", trial:"Trial of Maths", target:15, color:"#d9605a", icon:"📜", stat:"INT"},
+  acc:{name:"Accountancy", scroll:"The Ledger of Accountancy", trial:"Trial of the Ledger", target:9, color:"#5fb377", icon:"📖", stat:"WIS"}
+};
+const LS_KEY = "julian-study-quest-v1";
+const QUOTES = [
+  "Every hero's legend begins with a single trial.",
+  "Steady now. The scroll reveals its secrets to the patient.",
+  "Your blade is your pencil. Wield it well.",
+  "Phone face down, adventurer. Distractions are goblins.",
+  "Twenty minutes stand between you and glory.",
+  "Even dragons were beaten one step at a time.",
+  "The guild is watching. Show them what you've got.",
+  "Focus is your shield. Raise it high."
+];
+const CHEERS = [
+  "Trial conquered! +10 XP", "Victory! +10 gold", "A gem is yours! 💎",
+  "The scroll yields! ⚔", "Well fought, adventurer!", "Huzzah! Onward!"
+];
+const LEVELS = ["Peasant","Squire","Apprentice","Adventurer","Knight","Sage","Archmage","Champion","Hero of the Realm","Legend"];
+const CRESTS = ["🧑‍🌾","🛡️","📚","🗡️","⚔️","🔮","🧙","🏰","🐉","👑"];
+const BADGES = [
+  {id:"first",  ic:"🌱", name:"First Trial"},
+  {id:"hour",   ic:"⏳", name:"Hour of Power"},
+  {id:"half",   ic:"🌓", name:"Halfway There"},
+  {id:"accDone",ic:"📖", name:"Ledger Master"},
+  {id:"mathsDone",ic:"📜",name:"Scroll Master"},
+  {id:"week",   ic:"🏆", name:"Week Conquered"},
+  {id:"streak3",ic:"🔥", name:"3-Day Flame"},
+  {id:"streak7",ic:"🐉", name:"7-Day Dragon"}
+];
+
+// ---------- dates ----------
+function ymd(d){ d=new Date(d); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function mondayOf(d){ const x=new Date(d); x.setHours(0,0,0,0); x.setDate(x.getDate()-((x.getDay()+6)%7)); return ymd(x); }
+function prettyWeek(mon){ const a=new Date(mon+"T12:00:00"); const b=new Date(a); b.setDate(b.getDate()+6);
+  const f=x=>x.toLocaleDateString("en-GB",{day:"numeric",month:"short"}); return f(a)+" – "+f(b); }
+
+// ---------- state ----------
+function fresh(){ return {weekStart:mondayOf(Date.now()), maths:0, acc:0, allMaths:0, allAcc:0, days:{}, history:[], badges:{}, total:0, active:null, parked:{}, brk:null, updated:0}; }
+function migrate(s){
+  s = Object.assign(fresh(), s);
+  if(s.allMaths==null || (!s.allMaths && !s.allAcc && s.total)){ // older saves: rebuild all-time counts
+    s.allMaths = s.maths + s.history.reduce((t,h)=>t+h.maths,0);
+    s.allAcc = s.acc + s.history.reduce((t,h)=>t+h.acc,0);
+  }
+  return s;
+}
+let state = fresh();
+try { const s = JSON.parse(localStorage.getItem(LS_KEY)||"null"); if(s && s.weekStart) state = migrate(s); } catch(e){}
+
+let docRef = null, saving = false, pendingSave = false;
+function save(){
+  state.updated = Date.now();
+  try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch(e){}
+  pushRemote();
+}
+async function pushRemote(){
+  if(!docRef) return;
+  if(saving){ pendingSave = true; return; }
+  saving = true;
+  try { await docRef.set(JSON.parse(JSON.stringify(state))); setSync(true); }
+  catch(e){ setSync(false); }
+  saving = false;
+  if(pendingSave){ pendingSave=false; pushRemote(); }
+}
+function setSync(){}
+
+// ---------- week rollover ----------
+function rollover(){
+  const cur = mondayOf(Date.now());
+  if(state.weekStart !== cur){
+    if(state.maths || state.acc) state.history.unshift({week:state.weekStart, maths:state.maths, acc:state.acc});
+    state.history = state.history.slice(0,12);
+    state.weekStart = cur; state.maths = 0; state.acc = 0;
+    return true;
+  }
+  return false;
+}
+
+// ---------- derived ----------
+function streak(){
+  let n=0; const d=new Date(); d.setHours(12);
+  if(!state.days[ymd(d)]) d.setDate(d.getDate()-1);
+  while(state.days[ymd(d)]){ n++; d.setDate(d.getDate()-1); }
+  return n;
+}
+function level(){ const xp=state.total*10; const lv=Math.floor(xp/100)+1; const i=Math.min(lv-1,LEVELS.length-1); return {lv, title:LEVELS[i], crest:CRESTS[i], xp, into:xp%100}; }
+function stats(){ return {INT:10+state.allMaths, WIS:10+state.allAcc, STA:10+Object.keys(state.days).length, GOLD:state.total*10}; }
+function weekPct(){ return Math.round((Math.min(state.maths,15)+Math.min(state.acc,9))/24*100); }
+
+function checkBadges(){
+  const got=[]; const award=id=>{ if(!state.badges[id]){ state.badges[id]=ymd(Date.now()); got.push(BADGES.find(b=>b.id===id)); } };
+  if(state.total>=1) award("first");
+  if(Object.values(state.days).some(v=>v>=3)) award("hour");
+  if(weekPct()>=50) award("half");
+  if(state.acc>=9) award("accDone");
+  if(state.maths>=15) award("mathsDone");
+  if(state.maths>=15 && state.acc>=9) award("week");
+  const s=streak(); if(s>=3) award("streak3"); if(s>=7) award("streak7");
+  return got;
+}
+
+// ---------- render ----------
+let justDone = null, bumped = [];
+function renderHero(){
+  const L=level(), S=stats(), st=streak();
+  const cell=(k,e,v)=>`<div class="stat ${bumped.includes(k)?"bump":""}"><div class="k">${k}</div><div class="v">${v}</div><div class="e">${e}</div></div>`;
+  document.getElementById("heroCard").innerHTML = `
+    <div class="hero">
+      <div class="crest">${L.crest}</div>
+      <div style="flex:1">
+        <div class="hero-name">Julian</div>
+        <div class="hero-title">Level ${L.lv} ${L.title}${st?` · 🔥 ${st}-day streak`:""}</div>
+        <div class="xpbar"><i style="width:${L.into}%"></i></div>
+        <div class="xptext">${L.into} / 100 XP to Level ${L.lv+1}</div>
+      </div>
+    </div>
+    <div class="stats">
+      ${cell("INT","🧠",S.INT)}${cell("WIS","🦉",S.WIS)}${cell("STA","💪",S.STA)}${cell("GOLD","🪙",S.GOLD)}
+    </div>`;
+}
+function renderSubject(key){
+  const S=SUBJ[key], n=state[key], el=document.getElementById(key==="maths"?"cardMaths":"cardAcc");
+  const left=Math.max(S.target-n,0);
+  let gems=""; const shown=Math.max(S.target,n);
+  for(let i=0;i<shown;i++){ const d=i<n; gems+=`<div class="gem ${d?"done":""} ${i>=S.target?"bonus":""} ${d&&justDone===key&&i===n-1?"pop":""}"></div>`; }
+  const mins=left*20, h=Math.floor(mins/60), m=mins%60;
+  const pk = state.parked && state.parked[key];
+  const pkMin = pk ? Math.ceil(pk/60000) : 0;
+  el.innerHTML = `
+    <h2>~ ${S.scroll} ~</h2>
+    <div class="qcount">${Math.min(n,S.target)} of ${S.target} trials passed${n>S.target?` · ${n-S.target} bonus`:""} · +1 ${S.stat} each</div>
+    <div class="gems">${gems}</div>
+    ${pk
+      ? `<button class="begin" data-s="${key}">⚜ Resume the Trial ⚜<small>${pkMin} minutes remain</small></button>`
+      : left>0
+      ? `<button class="begin" data-s="${key}">⚜ Begin the Trial ⚜<small>20 minutes · ${h?h+"h ":""}${m?m+"m ":""}left this week</small></button>`
+      : `<div class="conquered">🏆 Conquered for this week! 🏆</div>
+         <button class="begin ghost" data-s="${key}">⚜ Bonus Trial ⚜</button>`}
+  `;
+}
+function render(){
+  document.getElementById("weekLabel").textContent = "The week of " + prettyWeek(state.weekStart) + " · " + weekPct() + "% of the weekly quest";
+  renderHero(); renderSubject("maths"); renderSubject("acc"); justDone=null; bumped=[];
+  document.getElementById("ach").innerHTML = BADGES.map(b=>`<div class="a ${state.badges[b.id]?"got":""}"><div class="seal">${b.ic}</div>${b.name}</div>`).join("");
+  document.getElementById("achCount").textContent = "◆ "+Object.keys(state.badges).length+" of "+BADGES.length+" earned ◆";
+  const hc=document.getElementById("histCard");
+  if(state.history.length){ hc.style.display="";
+    document.getElementById("hist").innerHTML = state.history.map(h=>{
+      const full=h.maths>=15&&h.acc>=9;
+      return `<div class="hist-row"><span>${prettyWeek(h.week)}</span><span>📜 ${h.maths}/15 · 📖 ${h.acc}/9 ${full?"🏆":""}</span></div>`;}).join("");
+  } else hc.style.display="none";
+}
+
+// ---------- timer ----------
+let tick=null, audioCtx=null, wakeLock=null;
+const ARC=722.6;
+function unlockAudio(){ try{ audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)(); audioCtx.resume(); }catch(e){} }
+function startSlot(key){
+  if(state.active) return;
+  unlockAudio();
+  state.brk = null;
+  state.parked = state.parked || {};
+  const left = state.parked[key] || SLOT_MS;
+  delete state.parked[key];
+  state.active = {s:key, endAt:Date.now()+left, total:Math.max(left,SLOT_MS)};
+  save(); openTimer();
+}
+async function keepAwake(on){
+  try{
+    if(on && "wakeLock" in navigator && !wakeLock){ wakeLock = await navigator.wakeLock.request("screen"); wakeLock.addEventListener("release",()=>wakeLock=null); }
+    if(!on && wakeLock){ await wakeLock.release(); wakeLock=null; }
+  }catch(e){}
+}
+function openTimer(){
+  const a=state.active, b=state.brk; if(!a && !b) return;
+  const $=id=>document.getElementById(id);
+  if(a){
+    const S=SUBJ[a.s];
+    $("tLabel").textContent = "⚔ "+S.trial+" ⚔";
+    $("tSub").textContent = "Focus, adventurer";
+    $("tArc").setAttribute("stroke", S.color);
+    $("quote").textContent = QUOTES[Math.floor(Math.random()*QUOTES.length)];
+    $("stopBtn").style.display = ""; $("skipBtn").style.display = "none";
+  } else {
+    $("tLabel").textContent = "🔥 Rest at Camp 🔥";
+    $("tSub").textContent = "Your strength returns";
+    $("tArc").setAttribute("stroke", "#d4a937");
+    $("quote").textContent = "Stretch your legs, drink some water, rest your eyes. The next trial awaits.";
+    $("stopBtn").style.display = "none"; $("skipBtn").style.display = "";
+  }
+  $("timer").classList.add("show");
+  keepAwake(true);
+  clearInterval(tick); tick=setInterval(updateTimer,250); updateTimer();
+}
+function updateTimer(){
+  const a=state.active, b=state.brk;
+  if(!a && !b){ closeTimer(); return; }
+  let r, total;
+  if(a){ r=Math.max(0,a.endAt-Date.now()); total=a.total||SLOT_MS; if(r<=0){ finishSlot(a.endAt); return; } }
+  else { r=Math.max(0,b.endAt-Date.now()); total=BREAK_MS; if(r<=0){ finishBreak(true); return; } }
+  const sec=Math.ceil(r/1000);
+  document.getElementById("tTime").textContent = String(Math.floor(sec/60)).padStart(2,"0")+":"+String(sec%60).padStart(2,"0");
+  document.getElementById("tArc").setAttribute("stroke-dashoffset", (ARC*(1-r/total)).toFixed(1));
+  document.getElementById("tState").textContent = a ? "Trial underway" : "Resting";
+}
+function closeTimer(){ clearInterval(tick); tick=null; document.getElementById("timer").classList.remove("show"); keepAwake(false); }
+function fanfare(){
+  try{ if(!audioCtx) return; const now=audioCtx.currentTime;
+    [[523,0],[659,.15],[784,.3],[1047,.45]].forEach(([f,t],i)=>{ const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+      o.type="triangle"; o.frequency.value=f; o.connect(g); g.connect(audioCtx.destination);
+      const len = i===3 ? .6 : .18;
+      g.gain.setValueAtTime(0.0001,now+t); g.gain.exponentialRampToValueAtTime(0.35,now+t+0.02); g.gain.exponentialRampToValueAtTime(0.0001,now+t+len);
+      o.start(now+t); o.stop(now+t+len+.05); });
+  }catch(e){}
+  try{ navigator.vibrate && navigator.vibrate([200,100,200]); }catch(e){}
+}
+function finishSlot(when){
+  const a=state.active; if(!a) return;
+  const key=a.s; state.active=null;
+  rollover();
+  const before=level().lv;
+  state[key]++; state.total++;
+  if(key==="maths") state.allMaths++; else state.allAcc++;
+  const day=ymd(when||Date.now()); const firstToday=!state.days[day]; state.days[day]=(state.days[day]||0)+1;
+  bumped=[SUBJ[key].stat,"GOLD"]; if(firstToday) bumped.push("STA");
+  const newBadges=checkBadges();
+  const brkEnd=(when||Date.now())+BREAK_MS;
+  state.brk = brkEnd>Date.now() ? {endAt:brkEnd} : null;
+  save(); justDone=key; render(); fanfare();
+  if(state.brk) openTimer(); else closeTimer();
+  const S=SUBJ[key], L=level();
+  const statLine = `+10 XP · +10 gold · +1 ${S.stat}${firstToday?" · +1 STA":""}`;
+  if(state.maths===15 && state.acc===9 && (key==="maths"?state.maths:state.acc)===S.target){
+    confetti(); showModal("🏆","Weekly Quest Conquered!","All 24 trials passed: 5 hours of Maths and 3 hours of Accountancy. The realm sings of your deeds!",[{t:"Huzzah! ⚔",p:1}]);
+  } else if(L.lv>before){
+    confetti(); showModal(L.crest,"Level Up!",`You are now a Level ${L.lv} ${L.title}. ${statLine}`,[{t:"Onward!",p:1}]);
+  } else if(state[key]===S.target){
+    confetti(); showModal(S.icon, S.scroll+" Conquered!", `Your ${S.name} quest is complete for the week. ${statLine}`,[{t:"Victory!",p:1}]);
+  } else if(newBadges.length){
+    const b=newBadges[0]; confetti(); showModal(b.ic,"Honour Earned!",`“${b.name}” has been added to your Hall of Honours. ${statLine}`,[{t:"Huzzah!",p:1}]);
+  } else {
+    toast(CHEERS[Math.floor(Math.random()*CHEERS.length)]+" · +1 "+S.stat);
+  }
+}
+function finishBreak(timeUp){
+  state.brk=null; save(); closeTimer(); render();
+  if(timeUp){
+    fanfare();
+    showModal("📯","Camp is struck!","Your rest is over, adventurer. Which trial do you face next?",[
+      {t:"📜 Maths",p:1,fn:()=>startSlot("maths")},
+      {t:"📖 Accounts",p:1,fn:()=>startSlot("acc")},
+      {t:"Later"}
+    ]);
+  }
+}
+document.getElementById("stopBtn").onclick=()=>{
+  if(!state.active) return;
+  showModal("🏳️","Retreat for now?","Your progress is kept, but the trial grows 2 minutes longer when you return.",[
+    {t:"Fight on!",p:1},
+    {t:"Retreat",fn:()=>{
+      const a=state.active; if(!a) return;
+      const left=Math.max(0,a.endAt-Date.now())+STOP_PENALTY_MS;
+      state.parked=state.parked||{}; state.parked[a.s]=left;
+      state.active=null; save(); closeTimer(); render();
+      toast(`Retreated · ${Math.ceil(left/60000)} min remain`);
+    }}
+  ]);
+};
+document.getElementById("skipBtn").onclick=()=>finishBreak(false);
+document.addEventListener("click",e=>{ const b=e.target.closest(".begin"); if(b) startSlot(b.dataset.s); });
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden && (state.active||state.brk)){ openTimer(); } });
+
+// ---------- UI helpers ----------
+function toast(msg){ const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("show"),2800); }
+function showModal(icon,title,text,btns){
+  document.getElementById("mIcon").textContent=icon; document.getElementById("mTitle").textContent=title; document.getElementById("mText").textContent=text;
+  const row=document.getElementById("mBtns"); row.innerHTML="";
+  btns.forEach(b=>{ const el=document.createElement("button"); el.textContent=b.t; if(b.p) el.className="primary";
+    el.onclick=()=>{ document.getElementById("modal").classList.remove("show"); b.fn&&b.fn(); }; row.appendChild(el); });
+  const m=document.getElementById("modal"); m.classList.remove("show"); void m.offsetWidth; m.classList.add("show");
+}
+function confetti(){
+  const c=document.getElementById("confetti"), x=c.getContext("2d"); c.width=innerWidth; c.height=innerHeight;
+  const cols=["#d4a937","#f6dc7a","#d9605a","#5fb377","#8b6ad1","#fff6dc"];
+  const P=Array.from({length:150},()=>({x:Math.random()*c.width,y:-20-Math.random()*c.height*.5,vx:(Math.random()-.5)*4,vy:2+Math.random()*4,r:4+Math.random()*6,c:cols[Math.floor(Math.random()*cols.length)],a:Math.random()*6,s:Math.random()<.35}));
+  let f=0; (function step(){ x.clearRect(0,0,c.width,c.height);
+    P.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; p.vy+=.05; p.a+=.1; x.fillStyle=p.c; x.save(); x.translate(p.x,p.y); x.rotate(p.a);
+      if(p.s){ x.beginPath(); x.moveTo(0,-p.r); x.lineTo(p.r*.6,0); x.lineTo(0,p.r); x.lineTo(-p.r*.6,0); x.fill(); } else x.fillRect(-p.r/2,-p.r/2,p.r,p.r*.6);
+      x.restore(); });
+    if(++f<210) requestAnimationFrame(step); else x.clearRect(0,0,c.width,c.height); })();
+}
+
+// ---------- boot ----------
+function resumeActive(){
+  if(state.active && state.active.paused){ state.parked=state.parked||{}; state.parked[state.active.s]=state.active.left; state.active=null; save(); render(); }
+  if(state.active && state.active.endAt<=Date.now()) finishSlot(state.active.endAt);
+  else if(state.active) openTimer();
+  else if(state.brk && state.brk.endAt<=Date.now()){ state.brk=null; save(); }
+  else if(state.brk) openTimer();
+}
+if(rollover()) save();
+render(); resumeActive();
+
+// keep data safe on the phone and enable offline use
+try{ navigator.storage && navigator.storage.persist && navigator.storage.persist(); }catch(e){}
+if("serviceWorker" in navigator){ window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{})); }
+})();
+</script>
+</body>
+</html>
