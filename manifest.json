@@ -1,7 +1,7 @@
 {
   "name": "Study Quest",
   "short_name": "Study Quest",
-  "description": "Julian's weekly Maths and Accountancy quest",
+  "description": "Julien's weekly Maths and Accountancy quest",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
